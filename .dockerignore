@@ -1,0 +1,26 @@
+# dependencias / builds locales
+node_modules
+.next
+out
+dist
+
+# control de versiones y tooling
+.git
+.gitignore
+Dockerfile*
+docker-compose*
+README.md
+
+# logs / caches
+npm-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+.cache
+
+# editor
+.vscode
+.idea
+
+# env (ajusta según tu flujo)
+.env*
+!.env.production
