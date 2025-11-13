@@ -49,3 +49,29 @@ jobs:
             sudo docker stop my-app || true
             sudo docker rm my-app || true
             sudo docker run -d --name my-app -p 80:3000 ghcr.io/${{ github.repository }}:latest
+
+      - name: Trigger AWS Lambda Function
+        if: always()
+        run: |
+          # Determine pipeline status
+          STATUS="success"
+          if [ "${{ job.status }}" != "success" ]; then STATUS="failed"; fi
+
+          # Gather metadata
+          COMMIT_SHA=${{ github.sha }}
+          BRANCH=${{ github.ref_name }}
+          ACTOR=${{ github.actor }}
+          TIMESTAMP=$(date)
+
+          echo "📡 Sending deployment status to AWS Lambda..."
+          RESPONSE=$(curl -s -X POST ${{ secrets.LAMBDA_URL }} \
+            -H "Content-Type: application/json" \
+            -d "{
+              \"status\": \"$STATUS\",
+              \"commit\": \"$COMMIT_SHA\",
+              \"branch\": \"$BRANCH\",
+              \"triggered_by\": \"$ACTOR\",
+              \"timestamp\": \"$TIMESTAMP\"
+            }")
+
+          echo "Lambda Response: $RESPONSE"
